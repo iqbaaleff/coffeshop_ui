@@ -1,72 +1,38 @@
-import 'package:coffeshop_ui/screens/cart_page.dart';
-import 'package:coffeshop_ui/screens/order_history_page.dart';
-import 'package:coffeshop_ui/screens/product_detail_page.dart';
-import 'package:coffeshop_ui/screens/profile_page.dart';
+import 'package:coffeshop_ui/providers/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:coffeshop_ui/data/dummy_data.dart';
+import 'package:coffeshop_ui/screens/product_detail_page.dart';
+import 'package:provider/provider.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final List<Map<String, dynamic>> coffeeMenu = const [
-    {
-      'name': 'Espresso',
-      'price': 'IDR 25.000',
-      'image': 'assets/images/espresso.jpeg',
-    },
-    {
-      'name': 'Cappuccino',
-      'price': 'IDR 30.000',
-      'image': 'assets/images/cappuccino.jpeg',
-    },
-    {
-      'name': 'Latte',
-      'price': 'IDR 28.000',
-      'image': 'assets/images/machiato.jpeg',
-    },
-  ];
-
-  late PersistentTabController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = PersistentTabController(initialIndex: 0);
+  String formatCurrency(int value) {
+    return 'Rp ${value.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
   }
 
-  List<Widget> _buildScreens() {
-    return [
-      Center(
-        child: Scaffold(
-          backgroundColor: const Color(0xffF3E5AB),
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
 
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            centerTitle: true,
-            title: const Text(
-              'Baltivers Coffee',
-              style: TextStyle(
-                color: Color(0xff6C9A8B),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout, color: Color(0xfff9f4ee)),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/login');
-                },
-              ),
-            ],
+    return Scaffold(
+      backgroundColor: const Color(0xffF3E5AB),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        centerTitle: true,
+        title: const Text(
+          'Baltivers Coffee',
+          style: TextStyle(
+            color: Color(0xff6C9A8B),
+            fontWeight: FontWeight.w600,
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+        ),
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -76,9 +42,11 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
                       'assets/images/banner.jpg',
-                      height: 180,
+                      height: screenWidth * 0.45,
                       width: double.infinity,
-                      fit: BoxFit.fill,
+                      fit: BoxFit.cover,
+                      cacheWidth: (screenWidth * 2).toInt(),
+                      gaplessPlayback: true,
                     ),
                   ),
                 ),
@@ -86,7 +54,7 @@ class _HomePageState extends State<HomePage> {
                 FadeInDown(
                   duration: const Duration(milliseconds: 600),
                   child: Text(
-                    'Daily Special',
+                    'Menu',
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
@@ -95,87 +63,97 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: dummyCoffeeMenu.length,
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 250,
                     mainAxisSpacing: 16,
                     crossAxisSpacing: 16,
-                    childAspectRatio: 0.9,
+                    childAspectRatio: 0.75,
                   ),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: coffeeMenu.length,
                   itemBuilder: (context, index) {
-                    final item = coffeeMenu[index];
+                    final item = dummyCoffeeMenu[index];
                     return FadeInUp(
                       duration: Duration(milliseconds: 400 + index * 100),
                       child: Card(
-                        color: Color(0xffF3E5AB),
+                        color: const Color(0xffF3E5AB),
                         shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Color(0xff4B2E2B)),
                           borderRadius: BorderRadius.circular(16),
+                          side: const BorderSide(color: Color(0xff4B2E2B)),
                         ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(16),
                           onTap: () {
-                            Navigator.of(context).push(
-                              _createRoute(
-                                ProductDetailPage(
-                                  name: item['name'],
-                                  image: item['image'],
-                                  price: item['price'],
-                                  description:
-                                      'A delicious and fresh ${item['name']} made with premium beans and perfect aroma.',
-                                ),
-                              ),
-                            );
+                            Navigator.of(
+                              context,
+                            ).push(_createRoute(ProductDetailPage(item: item)));
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(14),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Jangan gunakan Expanded di sini
-                                Center(
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: Image.asset(
-                                      item['image'],
-                                      width: double.infinity,
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                          0.1,
-                                      fit: BoxFit.cover,
-                                    ),
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(14),
+                                  child: Image.asset(
+                                    item.image,
+                                    height: 90,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                    cacheHeight: 180,
+                                    gaplessPlayback: true,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  item['name'],
-                                  style: TextStyle(
+                                  item.name,
+                                  style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Color(0xff4B2E2B),
                                     fontSize: 16,
                                   ),
                                 ),
-                                const Spacer(), // dorong ke bawah
+                                const Spacer(),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
-                                      item['price'],
-                                      style: TextStyle(
+                                      formatCurrency(item.price),
+                                      style: const TextStyle(
                                         color: Color(0xff4B2E2B),
                                       ),
                                     ),
                                     IconButton(
                                       style: IconButton.styleFrom(
-                                        backgroundColor: Color(0xff6C9A8B),
+                                        backgroundColor: const Color(
+                                          0xff6C9A8B,
+                                        ),
                                       ),
-                                      onPressed: () {},
-                                      icon: Icon(
+                                      onPressed: () {
+                                        final cartProvider =
+                                            Provider.of<CartProvider>(
+                                              context,
+                                              listen: false,
+                                            );
+                                        cartProvider.addToCart(item);
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              '${item.name} ditambahkan ke keranjang',
+                                            ),
+                                            duration: const Duration(
+                                              seconds: 1,
+                                            ),
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
                                         Icons.add,
                                         color: Color(0xffF3E5AB),
                                       ),
@@ -192,110 +170,21 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
-          ),
-        ),
+          );
+        },
       ),
-      Center(child: CartPage()),
-      Center(
-        child: OrderHistoryPage(
-          orderHistory: [
-            {
-              'id': 1,
-              'date': '2025-06-09',
-              'total': 75000,
-              'address': 'Jl. Kopi No. 12, Bandung',
-              'notes': 'Tanpa gula',
-              'items': [
-                {'name': 'Espresso', 'price': 25000, 'quantity': 2},
-                {'name': 'Latte', 'price': 25000, 'quantity': 1},
-              ],
-            },
-            {
-              'id': 2,
-              'date': '2025-06-01',
-              'total': 25000,
-              'address': '',
-              'notes': '',
-              'items': [
-                {'name': 'Cappuccino', 'price': 25000, 'quantity': 1},
-              ],
-            },
-          ],
-        ),
-      ),
-      Center(
-        child: ProfilePage(
-          name: "Iqbaaleff",
-          email: "iqbaalfadillah19@gmail.com",
-        ),
-      ),
-    ];
-  }
-
-  List<PersistentBottomNavBarItem> _navBarsItems() {
-    return [
-      PersistentBottomNavBarItem(
-        icon: Icon(Icons.home),
-        title: ("Home"),
-        activeColorPrimary: Color(0xff6C9A8B),
-
-        inactiveColorPrimary: Colors.grey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(Icons.shopping_cart),
-        title: ("Cart"),
-        activeColorPrimary: Color(0xff6C9A8B),
-
-        inactiveColorPrimary: Colors.grey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(Icons.history),
-        title: ("Order History"),
-        activeColorPrimary: Color(0xff6C9A8B),
-
-        inactiveColorPrimary: Colors.grey,
-      ),
-      PersistentBottomNavBarItem(
-        icon: Icon(Icons.person),
-        title: ("Profile"),
-        activeColorPrimary: Color(0xff6C9A8B),
-
-        inactiveColorPrimary: Colors.grey,
-      ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return PersistentTabView(
-      context,
-      controller: _controller,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
-      confineToSafeArea: true,
-      backgroundColor: Color(0xffF3E5AB),
-      handleAndroidBackButtonPress: true,
-      resizeToAvoidBottomInset: true,
-      stateManagement: true,
-      navBarStyle: NavBarStyle.style12,
     );
   }
 
   Route _createRoute(Widget page) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = Offset(1.0, 0.0);
-        const end = Offset.zero;
-        const curve = Curves.ease;
-
+      transitionsBuilder: (context, animation, _, child) {
         final tween = Tween(
-          begin: begin,
-          end: end,
-        ).chain(CurveTween(curve: curve));
-        final offsetAnimation = animation.drive(tween);
-
-        return SlideTransition(position: offsetAnimation, child: child);
+          begin: const Offset(1.0, 0.0),
+          end: Offset.zero,
+        ).chain(CurveTween(curve: Curves.ease));
+        return SlideTransition(position: animation.drive(tween), child: child);
       },
     );
   }

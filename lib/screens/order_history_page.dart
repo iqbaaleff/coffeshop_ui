@@ -1,103 +1,94 @@
-import 'package:coffeshop_ui/screens/order_detail_page.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:provider/provider.dart';
+import 'package:coffeshop_ui/providers/order_history_provider.dart';
 
 class OrderHistoryPage extends StatelessWidget {
-  final List<Map<String, dynamic>> orderHistory;
+  const OrderHistoryPage({super.key});
 
-  const OrderHistoryPage({super.key, required this.orderHistory});
-
-  String formatCurrency(int amount) {
-    return NumberFormat.currency(
-      locale: 'id_ID',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    ).format(amount);
+  String formatCurrency(int value) {
+    return 'IDR ${value.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
   }
 
   @override
   Widget build(BuildContext context) {
+    final orders = Provider.of<OrderHistoryProvider>(context).orders;
+
     return Scaffold(
+      backgroundColor: const Color(0xffF3E5AB),
       appBar: AppBar(
-        title: const Text('Order History'),
-        backgroundColor: Colors.brown[800],
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xff4B2E2B)),
+        centerTitle: true,
+        title: const Text(
+          'Riwayat Pesanan',
+          style: TextStyle(
+            color: Color(0xff6C9A8B),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      backgroundColor: const Color(0xfff9f4ee),
       body:
-          orderHistory.isEmpty
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.history, size: 80, color: Colors.brown[200]),
-                    const SizedBox(height: 16),
-                    const Text(
-                      "No order history yet.",
-                      style: TextStyle(fontSize: 18, color: Colors.brown),
-                    ),
-                  ],
+          orders.isEmpty
+              ? const Center(
+                child: Text(
+                  'Belum ada pesanan.',
+                  style: TextStyle(
+                    color: Color(0xff4B2E2B),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               )
               : ListView.builder(
-                itemCount: orderHistory.length,
+                padding: const EdgeInsets.all(16),
+                itemCount: orders.length,
                 itemBuilder: (context, index) {
-                  final order = orderHistory[index];
-                  final itemCount = (order['items'] as List).length;
-
-                  return FadeInUp(
-                    duration: Duration(milliseconds: 300 + (index * 100)),
-                    child: Card(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: const Icon(
-                          Icons.receipt_long,
-                          color: Colors.brown,
-                          size: 30,
-                        ),
-                        title: Text(
-                          "Order #${order['id']}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.brown[900],
-                          ),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            "$itemCount items • ${order['date']}",
-                            style: TextStyle(color: Colors.brown[600]),
-                          ),
-                        ),
-                        trailing: Text(
-                          formatCurrency(order['total']),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.brown,
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => OrderDetailPage(order: order),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  );
+                  final order = orders[index];
+                  return _buildOrderCard(order);
                 },
               ),
+    );
+  }
+
+  Widget _buildOrderCard(dynamic order) {
+    return Card(
+      color: const Color(0xffFFF8DC),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: const BorderSide(color: Color(0xff4B2E2B)),
+      ),
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Tanggal: ${order.date}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xff4B2E2B),
+              ),
+            ),
+            const SizedBox(height: 6),
+            ...order.items.map<Widget>(
+              (item) => Text(
+                '${item['quantity']}x ${item['name']} - ${formatCurrency(item['price'])}',
+                style: const TextStyle(color: Color(0xff6C9A8B)),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Total: ${formatCurrency(order.total)}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xff4B2E2B),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

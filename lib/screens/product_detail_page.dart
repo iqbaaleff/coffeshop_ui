@@ -1,204 +1,136 @@
 import 'package:flutter/material.dart';
-import 'package:coffeshop_ui/cart_data.dart';
+import 'package:coffeshop_ui/models/coffee_item.dart';
+import 'package:provider/provider.dart';
+import 'package:coffeshop_ui/providers/cart_provider.dart';
 
-class ProductDetailPage extends StatefulWidget {
-  final String name;
-  final String image;
-  final String description;
-  final String price;
+class ProductDetailPage extends StatelessWidget {
+  final CoffeeItem item;
 
-  const ProductDetailPage({
-    super.key,
-    required this.name,
-    required this.image,
-    required this.description,
-    required this.price,
-  });
-
-  @override
-  State<ProductDetailPage> createState() => _ProductDetailPageState();
-}
-
-class _ProductDetailPageState extends State<ProductDetailPage> {
-  int _quantity = 1;
-
-  void _updateQuantity(int newQty) {
-    setState(() => _quantity = newQty);
+  String formatCurrency(int value) {
+    return 'Rp ${value.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (match) => '${match[1]}.')}';
   }
 
-  void _addToCart() {
-    cartItems.add({
-      'name': widget.name,
-      'image': widget.image,
-      'price': int.parse(widget.price.replaceAll(RegExp(r'[^0-9]'), '')),
-      'quantity': _quantity,
-    });
-
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Added to cart')));
-  }
+  const ProductDetailPage({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    final screenWidth = screenSize.width;
+    final screenHeight = screenSize.height;
+
     return Scaffold(
       backgroundColor: const Color(0xffF3E5AB),
-      body: Column(
-        children: [
-          Hero(
-            tag: widget.image,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-              child: Image.asset(
-                widget.image,
-                height: 300,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Color(0xff4B2E2B)),
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          item.name,
+          style: const TextStyle(
+            color: Color(0xff4B2E2B),
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  widget.name,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.brown,
-                  ),
-                ),
-                Text(
-                  widget.price,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xff6C9A8B),
-                  ),
-                ),
-              ],
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  screenHeight -
+                  kToolbarHeight -
+                  MediaQuery.of(context).padding.top -
+                  32,
             ),
-          ),
-          const SizedBox(height: 10),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              widget.description,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-          ),
-          const Divider(color: Color(0xff4B2E2B)),
-          const Spacer(),
-
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Quantity",
-                      style: TextStyle(color: Color(0xff4B2E2B)),
-                    ),
-                    QuantitySelector(
-                      quantity: _quantity,
-                      onChanged: _updateQuantity,
-                    ),
-                  ],
-                ),
-
-                Expanded(
-                  child: Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 50),
-                      child: ElevatedButton.icon(
-                        onPressed: _addToCart,
-                        icon: const Icon(
-                          Icons.shopping_cart,
-                          color: Color(0xffF3E5AB),
-                        ),
-                        label: const Text(
-                          'Add to Cart',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xffF3E5AB),
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown[800],
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
+            child: IntrinsicHeight(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Hero(
+                    tag: item.image,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        item.image,
+                        width: double.infinity,
+                        height: screenWidth * 0.55,
+                        fit: BoxFit.cover,
+                        cacheWidth: (screenWidth * 2).toInt(),
+                        gaplessPlayback: true,
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+                  const SizedBox(height: 24),
+                  Text(
+                    item.name,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff4B2E2B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    formatCurrency(item.price),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Color(0xff6C9A8B),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    item.description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Color(0xff4B2E2B),
+                    ),
+                    textAlign: TextAlign.justify,
+                  ),
+                  const Spacer(),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    icon: const Icon(
+                      Icons.add_shopping_cart,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Tambah ke Keranjang',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xff6C9A8B),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () {
+                      final cart = Provider.of<CartProvider>(
+                        context,
+                        listen: false,
+                      );
+                      cart.addToCart(item);
 
-class QuantitySelector extends StatelessWidget {
-  final int quantity;
-  final void Function(int) onChanged;
-
-  const QuantitySelector({
-    super.key,
-    required this.quantity,
-    required this.onChanged,
-  });
-
-  void _increment() => onChanged(quantity + 1);
-  void _decrement() {
-    if (quantity > 1) onChanged(quantity - 1);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: const Color(0xff4B2E2B)),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.remove),
-            onPressed: _decrement,
-            color: const Color(0xff4B2E2B),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              '$quantity',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff4B2E2B),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            '${item.name} ditambahkan ke keranjang!',
+                          ),
+                          duration: const Duration(seconds: 1),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _increment,
-            color: const Color(0xff4B2E2B),
-          ),
-        ],
+        ),
       ),
     );
   }

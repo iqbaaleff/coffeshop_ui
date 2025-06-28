@@ -9,143 +9,114 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown[50],
-      body: Stack(
-        children: [
-          // Header background
-          Container(
-            height: 250,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.brown.shade800, Colors.brown.shade400],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(40),
-              ),
-            ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage(
-                      'assets/images/user_avatar.png',
-                    ),
-                    backgroundColor: Color(0xfff9f4ee),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(email, style: TextStyle(color: Colors.brown[100])),
-                ],
-              ),
-            ),
+      backgroundColor: const Color(0xffF3E5AB),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Color(0xff4B2E2B)),
+        title: const Text(
+          'Profil',
+          style: TextStyle(
+            color: Color(0xff6C9A8B),
+            fontWeight: FontWeight.bold,
           ),
-
-          // Body content
-          Positioned.fill(
-            top: 260,
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    // Profile Info Card
-                    Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 4,
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: const Icon(
-                                Icons.person,
-                                color: Colors.brown,
-                              ),
-                              title: const Text('Name'),
-                              subtitle: Text(name),
-                            ),
-                            const Divider(),
-                            ListTile(
-                              leading: const Icon(
-                                Icons.email,
-                                color: Colors.brown,
-                              ),
-                              title: const Text('Email'),
-                              subtitle: Text(email),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-
-                    // Edit Profile Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Navigasi ke halaman edit profil
-                      },
-                      icon: const Icon(Icons.edit),
-                      label: const Text('Edit Profile'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.brown[700],
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Logout Button
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          '/login',
-                          (route) => false,
-                        );
-                      },
-                      icon: const Icon(Icons.logout),
-                      label: const Text('Logout'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red[400],
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 32,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                    ),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildAvatar(),
+              const SizedBox(height: 16),
+              _buildUserInfo(),
+              const SizedBox(height: 24),
+              _buildLogoutButton(context),
+            ],
           ),
-        ],
+        ),
       ),
     );
+  }
+
+  Widget _buildAvatar() {
+    return CircleAvatar(
+      radius: 50,
+      backgroundColor: const Color(0xff6C9A8B),
+      child: Text(
+        name.isNotEmpty ? name[0].toUpperCase() : '?',
+        style: const TextStyle(
+          fontSize: 40,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserInfo() {
+    return Column(
+      children: [
+        Text(
+          name,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xff4B2E2B),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          email,
+          style: const TextStyle(fontSize: 14, color: Color(0xff6C9A8B)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogoutButton(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: () => _showLogoutConfirmation(context),
+      icon: const Icon(Icons.logout),
+      label: const Text('Logout'),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Future<void> _showLogoutConfirmation(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text('Logout'),
+            content: const Text(
+              'Apakah kamu yakin ingin logout dari akun ini?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Batal'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 }

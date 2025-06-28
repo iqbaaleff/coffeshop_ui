@@ -12,12 +12,6 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
 
   void loginUser() {
-    String email = emailController.text;
-    String password = passwordController.text;
-
-    // TODO: Implementasikan logika autentikasi ke backend
-    print("Login dengan email: $email dan password: $password");
-
     // Contoh navigasi setelah login berhasil
     Navigator.pushReplacementNamed(context, '/home');
   }

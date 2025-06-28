@@ -27,7 +27,14 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               children: [
                 // Logo
-                Image.asset('assets/images/logo.png', height: 120),
+                Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.black,
+                  child: Center(
+                    child: Text("Logo", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
 
                 SizedBox(height: 30),
 

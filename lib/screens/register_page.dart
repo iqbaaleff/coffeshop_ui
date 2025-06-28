@@ -53,7 +53,14 @@ class _RegisterPageState extends State<RegisterPage> {
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             children: [
-              Image.asset('assets/images/logo.png', height: 100),
+              Container(
+                width: 100,
+                height: 100,
+                color: Colors.black,
+                child: Center(
+                  child: Text("Logo", style: TextStyle(color: Colors.white)),
+                ),
+              ),
               const SizedBox(height: 24),
 
               Text(
@@ -165,7 +172,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextButton(
                     onPressed:
                         () => Navigator.pushReplacementNamed(context, '/login'),
-                    child: Text('Login', style: TextStyle(color: Colors.brown[800]),),
+                    child: Text(
+                      'Login',
+                      style: TextStyle(color: Colors.brown[800]),
+                    ),
                   ),
                 ],
               ),

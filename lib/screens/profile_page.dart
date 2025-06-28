@@ -1,3 +1,4 @@
+import 'package:coffeshop_ui/screens/login_page.dart';
 import 'package:flutter/material.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -101,11 +102,20 @@ class ProfilePage extends StatelessWidget {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () {
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
                 child: const Text('Batal'),
               ),
               TextButton(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                    (route) => false,
+                  );
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
                 child: const Text(
                   'Logout',
                   style: TextStyle(color: Colors.red),
@@ -116,7 +126,8 @@ class ProfilePage extends StatelessWidget {
     );
 
     if (confirm == true) {
-      Navigator.pushReplacementNamed(context, '/login');
+      // Kembali ke halaman login dan hapus semua riwayat sebelumnya
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
     }
   }
 }

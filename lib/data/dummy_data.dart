@@ -5,19 +5,19 @@ const List<CoffeeItem> dummyCoffeeMenu = [
   CoffeeItem(
     name: 'Espresso',
     price: 25000,
-    image: 'assets/images/espresso.jpeg',
+    image: 'lib/assets/images/espresso.jpeg',
     description: 'Kopi hitam murni yang kuat dan penuh aroma.',
   ),
   CoffeeItem(
     name: 'Cappuccino',
     price: 30000,
-    image: 'assets/images/cappuccino.jpeg',
+    image: 'lib/assets/images/cappuccino.jpeg',
     description: 'Kopi dengan susu dan foam, lembut dan creamy.',
   ),
   CoffeeItem(
     name: 'Latte',
     price: 28000,
-    image: 'assets/images/latte.jpeg',
+    image: 'lib/assets/images/latte.jpeg',
     description: 'Perpaduan espresso dan susu panas yang seimbang.',
   ),
 ];

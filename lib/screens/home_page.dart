@@ -14,15 +14,13 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: const Color(0xffF3E5AB),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
-          'Baltivers Coffee',
+          'Coffeeshop',
           style: TextStyle(
             color: Color(0xff6C9A8B),
             fontWeight: FontWeight.w600,
@@ -40,16 +38,27 @@ class HomeScreen extends StatelessWidget {
                   duration: const Duration(milliseconds: 700),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(20),
-                    child: Image.asset(
-                      'assets/images/banner.jpg',
-                      height: screenWidth * 0.45,
+                    child: Container(
                       width: double.infinity,
-                      fit: BoxFit.cover,
-                      cacheWidth: (screenWidth * 2).toInt(),
-                      gaplessPlayback: true,
+                      height:
+                          MediaQuery.of(context).size.height *
+                          0.9, // hampir full screen
+                      color: Colors.black,
+                      child: const Center(
+                        child: Text(
+                          'BANNER DISINI',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 24),
                 FadeInDown(
                   duration: const Duration(milliseconds: 600),

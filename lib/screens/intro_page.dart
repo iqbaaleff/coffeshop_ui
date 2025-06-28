@@ -15,7 +15,14 @@ class IntroPage extends StatelessWidget {
               // Logo atau Ilustrasi
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: Image.asset('assets/images/logo.png', height: 250),
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.black,
+                  child: Center(
+                    child: Text("Logo", style: TextStyle(color: Colors.white)),
+                  ),
+                ),
               ),
 
               // Tagline
